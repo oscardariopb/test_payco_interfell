@@ -1,18 +1,17 @@
 const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
-             xmlns:web="http://www.example.com/usuarios"
-             targetNamespace="http://www.example.com/usuarios">
-  <message name="getUsuariosRequest"/>
-  <message name="getUsuariosResponse">
-    <part name="usuarios" type="xsd:string"/>
-  </message>
+             xmlns:web="http://www.example.com/payco"
+             targetNamespace="http://www.example.com/payco">
 
-  <message name="getUsuarioRequest">
-    <part name="id" type="xsd:int"/>
+  <message name="getWalletRequest">
+    <part name="documento" type="xsd:string"/>
+    <part name="celular" type="xsd:string"/>
   </message>
-  <message name="getUsuarioResponse">
-    <part name="usuario" type="xsd:string"/>
-    <part name="error" type="xsd:string"/>
+  <message name="getWalletResponse">
+    <part name="success" type="xsd:boolean"/>
+    <part name="cod_error" type="xsd:string"/>
+    <part name="message_error" type="xsd:string"/>
+    <part name="data" type="xsd:string"/>
   </message>
 
   <message name="createClientRequest">
@@ -40,24 +39,10 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
     <part name="data" type="xsd:string"/>
   </message>
 
-  <message name="actualizarUsuarioRequest">
-    <part name="id" type="xsd:int"/>
-    <part name="nombre" type="xsd:string"/>
-    <part name="edad" type="xsd:int"/>
-  </message>
-  <message name="actualizarUsuarioResponse">
-    <part name="usuario" type="xsd:string"/>
-    <part name="error" type="xsd:string"/>
-  </message>
-
-  <portType name="UsuarioServicePortType">
-    <operation name="getUsuarios">
-      <input message="web:getUsuariosRequest"/>
-      <output message="web:getUsuariosResponse"/>
-    </operation>
-    <operation name="getUsuario">
-      <input message="web:getUsuarioRequest"/>
-      <output message="web:getUsuarioResponse"/>
+  <portType name="PaycoServicePortType">
+    <operation name="getWallet">
+      <input message="web:getWalletRequest"/>
+      <output message="web:getWalletResponse"/>
     </operation>
     <operation name="createClient">
       <input message="web:createClientRequest"/>
@@ -67,63 +52,41 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
       <input message="web:updateWalletClientRequest"/>
       <output message="web:updateWalletClientResponse"/>
     </operation>
-    <operation name="actualizarUsuario">
-      <input message="web:actualizarUsuarioRequest"/>
-      <output message="web:actualizarUsuarioResponse"/>
-    </operation>
   </portType>
 
-  <binding name="UsuarioServiceBinding" type="web:UsuarioServicePortType">
+  <binding name="PaycoServiceBinding" type="web:PaycoServicePortType">
     <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
-    <operation name="getUsuarios">
-      <soap:operation soapAction="getUsuarios"/>
+    <operation name="getWallet">
+      <soap:operation soapAction="getWallet"/>
       <input>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
+        <soap:body use="encoded" namespace="http://www.example.com/payco"/>
       </input>
       <output>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
-      </output>
-    </operation>
-    <operation name="getUsuario">
-      <soap:operation soapAction="getUsuario"/>
-      <input>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
-      </input>
-      <output>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
+        <soap:body use="encoded" namespace="http://www.example.com/payco"/>
       </output>
     </operation>
     <operation name="createClient">
       <soap:operation soapAction="createClient"/>
       <input>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
+        <soap:body use="encoded" namespace="http://www.example.com/payco"/>
       </input>
       <output>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
+        <soap:body use="encoded" namespace="http://www.example.com/payco"/>
       </output>
     </operation>
     <operation name="updateWalletClient">
       <soap:operation soapAction="updateWalletClient"/>
       <input>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
+        <soap:body use="encoded" namespace="http://www.example.com/payco"/>
       </input>
       <output>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
-      </output>
-    </operation>
-    <operation name="actualizarUsuario">
-      <soap:operation soapAction="actualizarUsuario"/>
-      <input>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
-      </input>
-      <output>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
+        <soap:body use="encoded" namespace="http://www.example.com/payco"/>
       </output>
     </operation>
   </binding>
 
-  <service name="UsuarioService">
-    <port name="UsuarioServicePort" binding="web:UsuarioServiceBinding">
+  <service name="PaycoService">
+    <port name="PaycoServicePort" binding="web:PaycoServiceBinding">
       <soap:address location="http://localhost:3000/soap"/>
     </port>
   </service>
