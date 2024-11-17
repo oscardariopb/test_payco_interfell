@@ -6,22 +6,27 @@ const mongoose = require('mongoose');
 
 // Conexión a MongoDB (local)
 mongoose.connect('mongodb://localhost:27017/interfellTestDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+   
   })
     .then(() => console.log('Conectado a MongoDB'))
     .catch((err) => console.error('Error al conectar a MongoDB:', err));
 
-// Definimos el esquema de Usuario
 const clientSchema = new mongoose.Schema({
     nombres: { type: String, required: true },
     documento: { type: String, required: true },
     email: { type: String, required: true },
     celular: { type: String, required: true },
   });
-  
-  // Creamos el modelo de Usuario
-  const ClientModel = mongoose.model('Client', clientSchema);
+
+const ClientModel = mongoose.model('Client', clientSchema);
+
+const walletSchema = new mongoose.Schema({
+    documentocliente: {type: String, required: true},
+    celular: {type: String, required: true},
+    saldo: { type: Number, required: true },
+  });
+
+const WalletModel = mongoose.model('Wallet', walletSchema);
 
 
 // Iniciamos el servidor Express
@@ -62,17 +67,24 @@ const service = {
       },
       // Crear un nuevo usuario (simulando un POST)
       createClient: async function (args) {
-        console.log(args)
         try {
             const newClient = new ClientModel({
               ...args.client
             });
             const res = await newClient.save();
-            console.log(res)
+
+            await WalletModel.create({documentocliente: res.documento, celular: res.celular, saldo: 0});
             return createResponse(true, '00', '', JSON.stringify(res));
           } catch (err) {
-            console.log(err)
             return createResponse(false, '500', 'Cannot create client: ' + err.message, {});
+          }
+      },
+      updateWalletClient: async function (args) {
+        try {
+            const res = await WalletModel.findOneAndUpdate({documentocliente: args.client.documento, celular: args.client.celular }, {$inc: {saldo: parseFloat(args.client.valor) } }, {returnDocument: 'after'});
+            return createResponse(true, '00', '', JSON.stringify(res));
+          } catch (err) {
+            return createResponse(false, '500', 'Cannot update wallet: ' + err.message, {});
           }
       },
       // Actualizar un usuario existente (simulando un PUT)
@@ -86,16 +98,6 @@ const service = {
           return { error: 'Usuario no encontrado' };
         }
       },
-      // Eliminar un usuario (simulando un DELETE)
-      eliminarUsuario: function (args) {
-        const index = usuarios.findIndex(u => u.id === parseInt(args.id));
-        if (index !== -1) {
-          const usuarioEliminado = usuarios.splice(index, 1);
-          return { usuarioEliminado: usuarioEliminado[0] };
-        } else {
-          return { error: 'Usuario no encontrado' };
-        }
-      }
     }
   }
 };

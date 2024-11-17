@@ -28,12 +28,12 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
     <part name="data" type="xsd:string"/>
   </message>
 
-  <message name="rechargeWalletRequest">
+  <message name="updateWalletClientRequest">
     <part name="documento" type="xsd:string"/>
     <part name="celular" type="xsd:string"/>
     <part name="valor" type="xsd:int"/>
   </message>
-  <message name="rechargeWalletResponse">
+  <message name="updateWalletClientResponse">
     <part name="success" type="xsd:boolean"/>
     <part name="cod_error" type="xsd:string"/>
     <part name="message_error" type="xsd:string"/>
@@ -50,14 +50,6 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
     <part name="error" type="xsd:string"/>
   </message>
 
-  <message name="eliminarUsuarioRequest">
-    <part name="id" type="xsd:int"/>
-  </message>
-  <message name="eliminarUsuarioResponse">
-    <part name="usuarioEliminado" type="xsd:string"/>
-    <part name="error" type="xsd:string"/>
-  </message>
-
   <portType name="UsuarioServicePortType">
     <operation name="getUsuarios">
       <input message="web:getUsuariosRequest"/>
@@ -71,17 +63,13 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
       <input message="web:createClientRequest"/>
       <output message="web:createClientResponse"/>
     </operation>
-    <operation name="rechargeWalletClient">
-      <input message="web:rechargeWalletClientRequest"/>
-      <output message="web:rechargeWalletClientResponse"/>
+    <operation name="updateWalletClient">
+      <input message="web:updateWalletClientRequest"/>
+      <output message="web:updateWalletClientResponse"/>
     </operation>
     <operation name="actualizarUsuario">
       <input message="web:actualizarUsuarioRequest"/>
       <output message="web:actualizarUsuarioResponse"/>
-    </operation>
-    <operation name="eliminarUsuario">
-      <input message="web:eliminarUsuarioRequest"/>
-      <output message="web:eliminarUsuarioResponse"/>
     </operation>
   </portType>
 
@@ -114,8 +102,8 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
         <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
       </output>
     </operation>
-    <operation name="rechargeWalletClient">
-      <soap:operation soapAction="rechargeWalletClient"/>
+    <operation name="updateWalletClient">
+      <soap:operation soapAction="updateWalletClient"/>
       <input>
         <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
       </input>
@@ -125,15 +113,6 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
     </operation>
     <operation name="actualizarUsuario">
       <soap:operation soapAction="actualizarUsuario"/>
-      <input>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
-      </input>
-      <output>
-        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
-      </output>
-    </operation>
-    <operation name="eliminarUsuario">
-      <soap:operation soapAction="eliminarUsuario"/>
       <input>
         <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
       </input>
