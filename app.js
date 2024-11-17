@@ -1,9 +1,40 @@
 const soap = require('soap');
 const http = require('http');
-const wsdl = require('./wsdl')
+const wsdl = require('./wsdl');
+
+const mongoose = require('mongoose');
+
+// Conexión a MongoDB (local)
+mongoose.connect('mongodb://localhost:27017/interfellTestDB', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+    .then(() => console.log('Conectado a MongoDB'))
+    .catch((err) => console.error('Error al conectar a MongoDB:', err));
+
+// Definimos el esquema de Usuario
+const clientSchema = new mongoose.Schema({
+    nombres: { type: String, required: true },
+    documento: { type: String, required: true },
+    email: { type: String, required: true },
+    celular: { type: String, required: true },
+  });
+  
+  // Creamos el modelo de Usuario
+  const ClientModel = mongoose.model('Client', clientSchema);
+
 
 // Iniciamos el servidor Express
 const port = 3000;
+
+function createResponse(success, cod_error, message_error, data) {
+    return {
+      success,
+      cod_error,
+      message_error,
+      data
+    };
+  }
 
 // Simulamos una base de datos en memoria
 let usuarios = [
@@ -21,6 +52,7 @@ const service = {
       },
       // Obtener un usuario por ID (simulando un GET con parámetro)
       getUsuario: function (args) {
+        console.log('get usuario', args)
         const usuario = usuarios.find(u => u.id === parseInt(args.id));
         if (usuario) {
           return { usuario: usuario };
@@ -29,14 +61,19 @@ const service = {
         }
       },
       // Crear un nuevo usuario (simulando un POST)
-      crearUsuario: function (args) {
-        const nuevoUsuario = {
-          id: usuarios.length + 1,
-          nombre: args.nombre,
-          edad: parseInt(args.edad),
-        };
-        usuarios.push(nuevoUsuario);
-        return { usuario: nuevoUsuario };
+      createClient: async function (args) {
+        console.log(args)
+        try {
+            const newClient = new ClientModel({
+              ...args.client
+            });
+            const res = await newClient.save();
+            console.log(res)
+            return createResponse(true, '00', '', JSON.stringify(res));
+          } catch (err) {
+            console.log(err)
+            return createResponse(false, '500', 'Cannot create client: ' + err.message, {});
+          }
       },
       // Actualizar un usuario existente (simulando un PUT)
       actualizarUsuario: function (args) {

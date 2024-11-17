@@ -15,12 +15,29 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
     <part name="error" type="xsd:string"/>
   </message>
 
-  <message name="crearUsuarioRequest">
-    <part name="nombre" type="xsd:string"/>
-    <part name="edad" type="xsd:int"/>
+  <message name="createClientRequest">
+    <part name="documento" type="xsd:string"/>
+    <part name="nombres" type="xsd:string"/>
+    <part name="email" type="xsd:string"/>
+    <part name="celular" type="xsd:string"/>
   </message>
-  <message name="crearUsuarioResponse">
-    <part name="usuario" type="xsd:string"/>
+  <message name="createClientResponse">
+    <part name="success" type="xsd:boolean"/>
+    <part name="cod_error" type="xsd:string"/>
+    <part name="message_error" type="xsd:string"/>
+    <part name="data" type="xsd:string"/>
+  </message>
+
+  <message name="rechargeWalletRequest">
+    <part name="documento" type="xsd:string"/>
+    <part name="celular" type="xsd:string"/>
+    <part name="valor" type="xsd:int"/>
+  </message>
+  <message name="rechargeWalletResponse">
+    <part name="success" type="xsd:boolean"/>
+    <part name="cod_error" type="xsd:string"/>
+    <part name="message_error" type="xsd:string"/>
+    <part name="data" type="xsd:string"/>
   </message>
 
   <message name="actualizarUsuarioRequest">
@@ -50,9 +67,13 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
       <input message="web:getUsuarioRequest"/>
       <output message="web:getUsuarioResponse"/>
     </operation>
-    <operation name="crearUsuario">
-      <input message="web:crearUsuarioRequest"/>
-      <output message="web:crearUsuarioResponse"/>
+    <operation name="createClient">
+      <input message="web:createClientRequest"/>
+      <output message="web:createClientResponse"/>
+    </operation>
+    <operation name="rechargeWalletClient">
+      <input message="web:rechargeWalletClientRequest"/>
+      <output message="web:rechargeWalletClientResponse"/>
     </operation>
     <operation name="actualizarUsuario">
       <input message="web:actualizarUsuarioRequest"/>
@@ -84,8 +105,17 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
         <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
       </output>
     </operation>
-    <operation name="crearUsuario">
-      <soap:operation soapAction="crearUsuario"/>
+    <operation name="createClient">
+      <soap:operation soapAction="createClient"/>
+      <input>
+        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
+      </output>
+    </operation>
+    <operation name="rechargeWalletClient">
+      <soap:operation soapAction="rechargeWalletClient"/>
       <input>
         <soap:body use="encoded" namespace="http://www.example.com/usuarios"/>
       </input>
