@@ -35,6 +35,31 @@ app.post('/api/getWallet', async (req, res) => {
     }
 });
 
+app.post('/api/createClient', async (req, res) => {
+    const { documento, nombres, email, celular } = req.body;
+
+    if (!celular || !documento || !email || !nombres) {
+        return res.status(400).json(
+            { error: 'Información incompleta es requerido los campos: documento, nombres, email, celular' }
+        );
+    }
+
+    try {
+        // Crear un cliente SOAP
+        const client = await soap.createClientAsync(WSDL_URL);
+
+        // Llamar al método SOAP con los argumentos necesarios
+        const [clientInfo] = await client.createClientAsync({ documento, nombres, email, celular });
+        console.log(clientInfo);
+         
+        // Enviar la respuesta al cliente
+        res.json(clientInfo);
+    } catch (error) {
+        console.error('Error al consumir el servicio SOAP:', error);
+        res.status(500).json({ error: 'Error al consumir el servicio SOAP', details: error.message });
+    }
+});
+
 // Iniciar el servidor
 app.listen(PORT, () => {
     console.log(`Servidor REST escuchando en http://localhost:${PORT}`);

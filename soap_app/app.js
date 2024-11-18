@@ -56,9 +56,10 @@ const service = {
         }
       },
       createClient: async function (args) {
+        const data = args.client || args;
         try {
             const newClient = new ClientModel({
-              ...args.client
+              ...data
             });
             const res = await newClient.save();
 
@@ -69,8 +70,9 @@ const service = {
           }
       },
       updateWalletClient: async function (args) {
+        const data = args.client || args;
         try {
-            const res = await WalletModel.findOneAndUpdate({documentocliente: args.client.documento, celular: args.client.celular }, {$inc: {saldo: parseFloat(args.client.valor) } }, {returnDocument: 'after'});
+            const res = await WalletModel.findOneAndUpdate({documentocliente: data.documento, celular: data.celular }, {$inc: {saldo: parseFloat(data.valor) } }, {returnDocument: 'after'});
             return createResponse(true, '00', '', JSON.stringify(res));
           } catch (err) {
             return createResponse(false, '500', 'Cannot update wallet: ' + err.message, {});
