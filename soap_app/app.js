@@ -1,34 +1,19 @@
 const soap = require('soap');
 const http = require('http');
 const wsdl = require('./wsdl');
+require('dotenv').config();
 
 const mongoose = require('mongoose');
+const { ClientModel, WalletModel } = require('./mongoSettings/models')
 
 // Conexión a MongoDB (local)
-mongoose.connect('mongodb://localhost:27017/interfellTestDB', {
+mongoose.connect(process.env.MONGODB, {
    
   })
     .then(() => console.log('Conectado a MongoDB'))
     .catch((err) => console.error('Error al conectar a MongoDB:', err));
 
-const clientSchema = new mongoose.Schema({
-    nombres: { type: String, required: true },
-    documento: { type: String, required: true },
-    email: { type: String, required: true },
-    celular: { type: String, required: true },
-});
-
-const ClientModel = mongoose.model('Client', clientSchema);
-
-const walletSchema = new mongoose.Schema({
-    documentocliente: {type: String, required: true},
-    celular: {type: String, required: true},
-    saldo: { type: Number, required: true },
-});
-
-const WalletModel = mongoose.model('Wallet', walletSchema);
-
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 function createResponse(success, cod_error, message_error, data) {
     return {
@@ -38,7 +23,6 @@ function createResponse(success, cod_error, message_error, data) {
       data
     };
 }
-
 
 const service = {
   PaycoService: {
@@ -84,12 +68,14 @@ const service = {
 
 // Configuración del servidor SOAP
 const server = http.createServer((req, res) => {
+  console.log('soappp ', process.env.EJEMPLO);
   res.end('Servidor SOAP corriendo');
 });
 
 soap.listen(server, '/soap', service, wsdl);
 
 // Iniciar el servidor Express
-server.listen(port, () => {
+server.listen(port , () => {
+  console.log('soapp ', process.env.port);
   console.log(`Servidor SOAP y Express corriendo en http://localhost:${port}`);
 });
