@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 const WSDL_URL = 'http://localhost:3000/soap?wsdl';
 
 // Endpoint REST para obtener información de un cliente
-app.post('/api/getWallet', async (req, res) => {
+app.post('/getWallet', async (req, res) => {
     const { celular, documento } = req.body;
     console.log("llego ", req.body);
     if (!celular || celular === "" && !documento || documento === "") {
@@ -35,7 +35,7 @@ app.post('/api/getWallet', async (req, res) => {
     }
 });
 
-app.post('/api/createClient', async (req, res) => {
+app.post('/createClient', async (req, res) => {
     const { documento, nombres, email, celular } = req.body;
 
     if (!celular || !documento || !email || !nombres) {
@@ -50,6 +50,31 @@ app.post('/api/createClient', async (req, res) => {
 
         // Llamar al método SOAP con los argumentos necesarios
         const [clientInfo] = await client.createClientAsync({ documento, nombres, email, celular });
+        console.log(clientInfo);
+         
+        // Enviar la respuesta al cliente
+        res.json(clientInfo);
+    } catch (error) {
+        console.error('Error al consumir el servicio SOAP:', error);
+        res.status(500).json({ error: 'Error al consumir el servicio SOAP', details: error.message });
+    }
+});
+
+app.post('/updateWalletClient', async (req, res) => {
+    const { documento, valor, celular } = req.body;
+
+    if (!celular || !documento || !valor) {
+        return res.status(400).json(
+            { error: 'Información incompleta es requerido los campos: documento, valor, celular' }
+        );
+    }
+
+    try {
+        // Crear un cliente SOAP
+        const client = await soap.createClientAsync(WSDL_URL);
+
+        // Llamar al método SOAP con los argumentos necesarios
+        const [clientInfo] = await client.updateWalletClientAsync({ documento, valor: parseFloat(valor), celular });
         console.log(clientInfo);
          
         // Enviar la respuesta al cliente
