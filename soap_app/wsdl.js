@@ -50,6 +50,18 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
     <part name="data" type="xsd:string"/>
   </message>
 
+  <message name="confirmPurchaseRequest">
+    <part name="idSesion" type="xsd:string"/>
+    <part name="token" type="xsd:int"/>
+    <part name="documento" type="xsd:int"/>
+  </message>
+  <message name="confirmPurchaseResponse">
+    <part name="success" type="xsd:boolean"/>
+    <part name="cod_error" type="xsd:string"/>
+    <part name="message_error" type="xsd:string"/>
+    <part name="data" type="xsd:string"/>
+  </message>
+
   <portType name="PaycoServicePortType">
     <operation name="getWallet">
       <input message="web:getWalletRequest"/>
@@ -66,6 +78,10 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
     <operation name="purchase">
       <input message="web:purchaseRequest"/>
       <output message="web:purchaseResponse"/>
+    </operation>
+    <operation name="confirmPurchase">
+      <input message="web:confirmPurchaseRequest"/>
+      <output message="web:confirmPurchaseResponse"/>
     </operation>
   </portType>
 
@@ -100,6 +116,15 @@ const wsdl = `<?xml version="1.0" encoding="UTF-8"?>
     </operation>
     <operation name="purchase">
       <soap:operation soapAction="purchase"/>
+      <input>
+        <soap:body use="encoded" namespace="http://www.example.com/payco"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="http://www.example.com/payco"/>
+      </output>
+    </operation>
+    <operation name="confirmPurchase">
+      <soap:operation soapAction="confirmPurchase"/>
       <input>
         <soap:body use="encoded" namespace="http://www.example.com/payco"/>
       </input>

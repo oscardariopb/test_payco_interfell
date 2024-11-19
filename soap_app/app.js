@@ -33,14 +33,14 @@ const service = {
     PaycoServicePort: {
       getWallet: async function (args) {
         try {
-            const wallet = await WalletModel.findOne({documentocliente: args.documento, celular: args.celular});
-            if (wallet) {
-              return createResponse(true, '00', '', JSON.stringify(wallet));
+            const wallet = await WalletModel.findOne({documento: args.documento, celular: args.celular});
+            if (!wallet) {
+              return createResponse(false, '404', 'No wallet found', {});
             } else {
-              return createResponse(true, '00', 'No wallet found', {});
+              return createResponse(true, '00', '', JSON.stringify(wallet));
             }
         } catch (err) {
-          return createResponse(false, '500', 'Cannot search wallet: ' + err.message, {});
+          return createResponse(false, '500', 'Cannot search wallet: ' + (err.message || err), {});
         }
       },
       createClient: async function (args) {
@@ -51,29 +51,50 @@ const service = {
             });
             const res = await newClient.save();
 
-            await WalletModel.create({documentocliente: res.documento, celular: res.celular, saldo: 0});
+            await WalletModel.create({documento: res.documento, celular: res.celular, saldo: 0});
             return createResponse(true, '00', '', JSON.stringify(res));
           } catch (err) {
-            return createResponse(false, '500', 'Cannot create client: ' + err.message, {});
+            return createResponse(false, '500', 'Cannot create client: ' + (err.message || err), {});
           }
       },
       updateWalletClient: async function (args) {
         const data = args.client || args;
         try {
-            const res = await WalletModel.findOneAndUpdate({documentocliente: data.documento, celular: data.celular }, {$inc: {saldo: parseFloat(data.valor) } }, {returnDocument: 'after'});
+            const res = await WalletModel.findOneAndUpdate({documento: data.documento, celular: data.celular }, {$inc: {saldo: parseFloat(data.valor) } }, {returnDocument: 'after'});
             return createResponse(true, '00', '', JSON.stringify(res));
           } catch (err) {
-            return createResponse(false, '500', 'Cannot update wallet: ' + err.message, {});
+            return createResponse(false, '500', 'Cannot update wallet: ' + (err.message || err), {});
           }
       },
       purchase: async function (args) {
         const data = args.purchase || args;
-        console.log(data);
         try {
-            const res = await PurchaseModel.create({idSesion: "1234", token: generateRandomTokenCode(100000,999999), estado: "Pending", valorCompra: 10 });
+            const res = await PurchaseModel.create({idSesion: "1234", token: generateRandomTokenCode(100000, 999999), estado: "Pending", valorCompra: parseFloat(data.valor), documento: data.documento, producto: data.producto });
             return createResponse(true, '00', '', JSON.stringify(res));
           } catch (err) {
-            return createResponse(false, '500', 'Cannot create purchase: ' + err.message, {});
+            return createResponse(false, '500', 'Cannot create purchase: ' + (err.message || err), {});
+          }
+      },
+      confirmPurchase: async function (args) {
+        const data = args.purchase || args;
+        try {
+            const purchase = await PurchaseModel.findOne({idSesion: data.idSesion, token: data.token, documento: data.documento, estado: "Pending" });
+         
+            if(!purchase) {
+              return createResponse(false, '404', 'No pending purchase found', {});
+            }
+
+            const wallet = await WalletModel.findOne({documento: data.documento });
+
+            if(purchase.valorCompra > wallet.saldo) {
+              return createResponse(false, '400', 'You cant complete the purchase, no balance', {});
+            }
+            const updatedWallet = await WalletModel.findOneAndUpdate({documento: data.documento }, {$inc: {saldo: -parseFloat(purchase.valorCompra) } }, {returnDocument: 'after'});
+            await PurchaseModel.findOneAndUpdate({_id: purchase._id }, { estado: "Completed" }, {returnDocument: 'after'});
+
+            return createResponse(true, '00', '', JSON.stringify(updatedWallet));
+          } catch (err) {
+            return createResponse(false, '500', 'Cannot complete purchase: ' + (err.message || err), {});
           }
       },
     }
@@ -89,6 +110,5 @@ soap.listen(server, '/soap', service, wsdl);
 
 // Iniciar el servidor Express
 server.listen(port , () => {
-  console.log('soapp ', process.env.port);
   console.log(`Servidor SOAP y Express corriendo en http://localhost:${port}`);
 });

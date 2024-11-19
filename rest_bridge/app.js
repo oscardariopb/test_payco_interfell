@@ -42,7 +42,10 @@ app.post('/getWallet', async (req, res) => {
 
     try {
         const [walletInfo] = await client.getWalletAsync({ celular, documento });
-         
+        if (!walletInfo.success) {
+            return res.json(walletInfo);
+        }
+
         const parsedData = JSON.parse(walletInfo.data);   
         res.json({...walletInfo, data: parsedData});
     } catch (error) {
@@ -63,7 +66,9 @@ app.post('/createClient', async (req, res) => {
 
     try {
         const [clientInfo] = await client.createClientAsync({ documento, nombres, email, celular });
-         
+        if (!client.success) {
+            return res.json(clientInfo);
+        }
         const parsedData = JSON.parse(clientInfo.data);   
         res.json({...clientInfo, data: parsedData});
     } catch (error) {
@@ -83,9 +88,12 @@ app.post('/updateWalletClient', async (req, res) => {
     }
 
     try {
-        const [clientInfo] = await client.updateWalletClientAsync({ documento, valor: parseFloat(valor), celular });
-        const parsedData = JSON.parse(clientInfo.data);   
-        res.json({...clientInfo, data: parsedData});
+        const [walletClientInfo] = await client.updateWalletClientAsync({ documento, valor: parseFloat(valor), celular });
+        if (!walletClientInfo.success) {
+            return res.json(walletClientInfo);
+        }
+        const parsedData = JSON.parse(walletClientInfo.data);   
+        res.json({...walletClientInfo, data: parsedData});
     } catch (error) {
         res.status(500).json(
             createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message || error )
@@ -94,22 +102,45 @@ app.post('/updateWalletClient', async (req, res) => {
 });
 
 app.post('/purchase', async (req, res) => {
-    const { producto, valor} = req.body;
+    const { producto, documento, valor} = req.body;
 
-    if (!producto || !valor) {
+    if (!producto || !valor || !documento) {
         return res.status(400).json(
-            createResponse(false, 400, 'Información incompleta es requerido los campos: producto, valor', {})
+            createResponse(false, 400, 'Información incompleta es requerido los campos: producto, valor, documento', {})
         );
     }
 
     try {
-        const [purchaseInfo] = await client.purchaseAsync({ producto, valor: parseFloat(valor) });
+        const [purchaseInfo] = await client.purchaseAsync({ producto, documento, valor: parseFloat(valor) });
 
         const parsedData = JSON.parse(purchaseInfo.data);   
         res.json({...purchaseInfo, data: parsedData});
     } catch (error) {
         res.status(500).json(
             createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message || error )
+        );
+    }
+});
+
+app.post('/confirmPurchase', async (req, res) => {
+    const { idSesion, token, documento} = req.body;
+
+    if (!idSesion || !token || !documento) {
+        return res.status(400).json(
+            createResponse(false, 400, 'Información incompleta es requerido los campos: idSesion, token, documento', {})
+        );
+    }
+
+    try {
+        const [purchaseInfo] = await client.confirmPurchaseAsync({ idSesion, token, documento});
+        if (!purchaseInfo.success) {
+            return res.json(purchaseInfo);
+        }
+        const parsedData = JSON.parse(purchaseInfo.data);
+        res.json({...purchaseInfo, data: parsedData});
+    } catch (error) {
+        res.status(500).json(
+            createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message )
         );
     }
 });
