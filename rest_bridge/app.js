@@ -43,7 +43,8 @@ app.post('/getWallet', async (req, res) => {
     try {
         const [walletInfo] = await client.getWalletAsync({ celular, documento });
          
-        res.json(walletInfo);
+        const parsedData = JSON.parse(walletInfo.data);   
+        res.json({...walletInfo, data: parsedData});
     } catch (error) {
         res.status(500).json(
             createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message || error )
@@ -63,7 +64,8 @@ app.post('/createClient', async (req, res) => {
     try {
         const [clientInfo] = await client.createClientAsync({ documento, nombres, email, celular });
          
-        res.json(clientInfo);
+        const parsedData = JSON.parse(clientInfo.data);   
+        res.json({...clientInfo, data: parsedData});
     } catch (error) {
         res.status(500).json(
             createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message || error )
@@ -82,8 +84,29 @@ app.post('/updateWalletClient', async (req, res) => {
 
     try {
         const [clientInfo] = await client.updateWalletClientAsync({ documento, valor: parseFloat(valor), celular });
-         
-        res.json(clientInfo);
+        const parsedData = JSON.parse(clientInfo.data);   
+        res.json({...clientInfo, data: parsedData});
+    } catch (error) {
+        res.status(500).json(
+            createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message || error )
+        );
+    }
+});
+
+app.post('/purchase', async (req, res) => {
+    const { producto, valor} = req.body;
+
+    if (!producto || !valor) {
+        return res.status(400).json(
+            createResponse(false, 400, 'Información incompleta es requerido los campos: producto, valor', {})
+        );
+    }
+
+    try {
+        const [purchaseInfo] = await client.purchaseAsync({ producto, valor: parseFloat(valor) });
+
+        const parsedData = JSON.parse(purchaseInfo.data);   
+        res.json({...purchaseInfo, data: parsedData});
     } catch (error) {
         res.status(500).json(
             createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message || error )

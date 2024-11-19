@@ -4,7 +4,7 @@ const wsdl = require('./wsdl');
 require('dotenv').config();
 
 const mongoose = require('mongoose');
-const { ClientModel, WalletModel } = require('./mongoSettings/models')
+const { ClientModel, WalletModel, PurchaseModel } = require('./mongoSettings/models')
 
 // Conexión a MongoDB (local)
 mongoose.connect(process.env.MONGODB, {
@@ -22,6 +22,10 @@ function createResponse(success, cod_error, message_error, data) {
       message_error,
       data
     };
+}
+
+generateRandomTokenCode = (minNumber, maxNumber) => {
+  return Math.floor(Math.random()*maxNumber) + minNumber;
 }
 
 const service = {
@@ -61,14 +65,23 @@ const service = {
           } catch (err) {
             return createResponse(false, '500', 'Cannot update wallet: ' + err.message, {});
           }
-      }
+      },
+      purchase: async function (args) {
+        const data = args.purchase || args;
+        console.log(data);
+        try {
+            const res = await PurchaseModel.create({idSesion: "1234", token: generateRandomTokenCode(100000,999999), estado: "Pending", valorCompra: 10 });
+            return createResponse(true, '00', '', JSON.stringify(res));
+          } catch (err) {
+            return createResponse(false, '500', 'Cannot create purchase: ' + err.message, {});
+          }
+      },
     }
   }
 };
 
 // Configuración del servidor SOAP
 const server = http.createServer((req, res) => {
-  console.log('soappp ', process.env.EJEMPLO);
   res.end('Servidor SOAP corriendo');
 });
 
