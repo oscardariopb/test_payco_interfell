@@ -70,7 +70,6 @@ app.post('/createClient', async (req, res) => {
             return res.json(clientInfo);
         }
         const parsedData = JSON.parse(clientInfo.data);
-        console.log('holaaaa')
         res.json({ ...clientInfo, data: parsedData });
     } catch (error) {
         res.status(500).json(
@@ -119,7 +118,6 @@ app.post('/purchase', async (req, res) => {
         const parsedData = JSON.parse(purchaseInfo.data);
         res.json({ ...purchaseInfo, data: parsedData });
     } catch (error) {
-        console.log(error)
         res.status(500).json(
             createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message || error)
         );
@@ -144,7 +142,7 @@ app.post('/confirmPurchase', async (req, res) => {
         res.json({ ...purchaseInfo, data: parsedData });
     } catch (error) {
         res.status(500).json(
-            createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message)
+            createResponse(false, 500, 'Error al consumir el servicio SOAP', error.message || error)
         );
     }
 });
