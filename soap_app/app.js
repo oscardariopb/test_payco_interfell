@@ -44,13 +44,20 @@ const service = {
       createClient: async function (args) {
         const data = args.client || args;
         try {
-          const newClient = new ClientModel({
-            ...data
-          });
-          const res = await newClient.save();
 
-          await WalletModel.create({ documento: res.documento, celular: res.celular, saldo: 0 });
-          return createResponse(true, '00', '', JSON.stringify(res));
+          const client = await ClientModel.findOne({ documento: data.documento, celular: data.celular });
+
+          if (!client) {
+            const newClient = new ClientModel({
+              ...data
+            });
+            const res = await newClient.save();
+  
+            await WalletModel.create({ documento: res.documento, celular: res.celular, saldo: 0 });
+            return createResponse(true, '00', '', JSON.stringify(res));
+          }
+          return createResponse(true, '00', '', JSON.stringify(client));
+
         } catch (err) {
           return createResponse(false, '500', 'Cannot create client: ' + (err.message || err), {});
         }
