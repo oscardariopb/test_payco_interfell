@@ -22,16 +22,22 @@ npm install
 5. LLenar las variables de entorno definidas en `.env`
 
 6. Ejercutar la app en dev
-6.1 Primero ejecutar el servidor soap
 
-```
-npm start
-```
-6.2 Luego ejecutar el servidor rest
+   6.1. Primero ejecutar el servidor soap
 
-```
-npm start
-```
+   ```
+   npm start
+   o
+   npx nodemon app.js
+   ```
+
+   6.2. Luego ejecutar el servidor rest
+
+   ```
+   npm start
+   o
+   npx nodemon app.js
+   ```
 
 7. Hacer peticiones
 
